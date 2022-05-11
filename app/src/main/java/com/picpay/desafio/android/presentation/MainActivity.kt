@@ -1,79 +1,119 @@
 package com.picpay.desafio.android.presentation
 
+import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.picpay.desafio.android.R
-import com.picpay.desafio.android.data.network.PicPayService
+import androidx.lifecycle.observe
+import com.picpay.desafio.android.databinding.ActivityMainBinding
 import com.picpay.desafio.android.domain.adapters.user.UserListAdapter
-import com.picpay.desafio.android.domain.entities.User
-import okhttp3.OkHttpClient
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class MainActivity : AppCompatActivity(R.layout.activity_main) {
+class MainActivity : AppCompatActivity() {
 
-    private lateinit var recyclerView: RecyclerView
+//    private lateinit var recyclerView: RecyclerView
     private lateinit var progressBar: ProgressBar
-    private lateinit var adapter: UserListAdapter
+//    private lateinit var adapter: UserListAdapter
 
-    private val url = "https://609a908e0f5a13001721b74e.mockapi.io/picpay/api/"
+    private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+    private val adapter by lazy { UserListAdapter() }
+    private val viewModel by viewModel<MainViewModel>()
 
-    private val gson: Gson by lazy { GsonBuilder().create() }
+//    private val url = "https://609a908e0f5a13001721b74e.mockapi.io/picpay/api/"
+//    private val gson: Gson by lazy { GsonBuilder().create() }
 
-    private val okHttp: OkHttpClient by lazy {
-        OkHttpClient.Builder()
-            .build()
-    }
+//    private val okHttp: OkHttpClient by lazy {
+//        OkHttpClient.Builder()
+//            .build()
+//    }
 
-    private val retrofit: Retrofit by lazy {
-        Retrofit.Builder()
-            .baseUrl(url)
-            .client(okHttp)
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .build()
-    }
+//    private val retrofit: Retrofit by lazy {
+//        Retrofit.Builder()
+//            .baseUrl(url)
+//            .client(okHttp)
+//            .addConverterFactory(GsonConverterFactory.create(gson))
+//            .build()
+//    }
 
-    private val service: PicPayService by lazy {
-        retrofit.create(PicPayService::class.java)
-    }
+//    private val service: PicPayService by lazy {
+//        retrofit.create(PicPayService::class.java)
+//    }
 
     override fun onResume() {
         super.onResume()
+        viewModel.listUsers()
+    }
 
-        recyclerView = findViewById(R.id.recyclerView)
-        progressBar = findViewById(R.id.user_list_progress_bar)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(binding.root)
 
-        adapter = UserListAdapter()
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(this)
-
+        binding.recyclerView.adapter = adapter
+        progressBar = binding.userListProgressBar
         progressBar.visibility = View.VISIBLE
-        service.getUsers()
-            .enqueue(object : Callback<List<User>> {
-                override fun onFailure(call: Call<List<User>>, t: Throwable) {
-                    val message = getString(R.string.error)
 
+        initObservers()
+        viewModel.listUsers()
+    }
+
+    private fun initObservers() {
+        viewModel.users.observe(this) { state ->
+            when (state) {
+                MainViewModel.State.Loading -> {
+                    Toast
+                        .makeText(this@MainActivity,"Loading", Toast.LENGTH_SHORT)
+                        .show()
+                    progressBar.visibility = View.VISIBLE
+                }
+                is MainViewModel.State.Error -> {
                     progressBar.visibility = View.GONE
-                    recyclerView.visibility = View.GONE
-
-                    Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT)
+                    Toast
+                        .makeText(this@MainActivity, state.error.message, Toast.LENGTH_SHORT)
                         .show()
                 }
-
-                override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
+                is MainViewModel.State.Success -> {
                     progressBar.visibility = View.GONE
-
-                    adapter.users = response.body()!!
+                    adapter.submitList(state.list)
+                    Toast
+                        .makeText(this@MainActivity, state.list.toString(), Toast.LENGTH_SHORT)
+                        .show()
+                    Log.e("Main", state.list.toString())
                 }
-            })
+
+            }
+        }
     }
+
+//    override fun onResume() {
+//        super.onResume()
+//
+//        recyclerView = findViewById(R.id.recyclerView)
+//        progressBar = findViewById(R.id.user_list_progress_bar)
+//
+//        adapter = UserListAdapter()
+//        recyclerView.adapter = adapter
+//        recyclerView.layoutManager = LinearLayoutManager(this)
+//
+//        progressBar.visibility = View.VISIBLE
+//        service.getUsers()
+//            .enqueue(object : Callback<List<User>> {
+//                override fun onFailure(call: Call<List<User>>, t: Throwable) {
+//                    val message = getString(R.string.error)
+//
+//                    progressBar.visibility = View.GONE
+//                    recyclerView.visibility = View.GONE
+//
+//                    Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT)
+//                        .show()
+//                }
+//
+//                override fun onResponse(call: Call<List<User>>, response: Response<List<User>>) {
+//                    progressBar.visibility = View.GONE
+//
+//                    adapter.users = response.body()!!
+//                }
+//            })
+//    }
 }

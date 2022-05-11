@@ -3,6 +3,8 @@ package com.picpay.desafio.android.data.di
 import android.util.Log
 import com.google.gson.GsonBuilder
 import com.picpay.desafio.android.data.network.PicPayService
+import com.picpay.desafio.android.data.repository.UserRepositoryImpl
+import com.picpay.desafio.android.domain.repository.UserRepository
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.core.context.loadKoinModules
@@ -15,7 +17,13 @@ import retrofit2.converter.gson.GsonConverterFactory
 object PicPayModule {
 
     fun load() {
-        loadKoinModules(networkModules())
+        loadKoinModules(networkModules() + repositoriesModule())
+    }
+
+    private fun repositoriesModule(): Module {
+        return module {
+            single<UserRepository> { UserRepositoryImpl(get()) }
+        }
     }
 
     private fun networkModules(): Module {

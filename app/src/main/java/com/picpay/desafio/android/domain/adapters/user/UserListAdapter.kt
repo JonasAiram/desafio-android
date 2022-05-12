@@ -8,18 +8,6 @@ import com.picpay.desafio.android.domain.entities.User
 
 class UserListAdapter : ListAdapter<User, UserListItemViewHolder>(UserListDiffCallback()) {
 
-//    var users = emptyList<User>()
-//        set(value) {
-//            val result = DiffUtil.calculateDiff(
-//                UserListDiffCallback(
-//                    field,
-//                    value
-//                )
-//            )
-//            result.dispatchUpdatesTo(this)
-//            field = value
-//        }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserListItemViewHolder {
 
         val inflater = LayoutInflater.from(parent.context)
@@ -31,7 +19,4 @@ class UserListAdapter : ListAdapter<User, UserListItemViewHolder>(UserListDiffCa
         holder.bind(getItem(position))
     }
 
-
-
-//    override fun getItemCount(): Int = users.size
 }

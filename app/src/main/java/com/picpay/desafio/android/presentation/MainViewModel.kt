@@ -23,7 +23,7 @@ class MainViewModel(
             ListUsers.getUsers()
                 .onStart { _users.postValue(State.Loading) }
                 .catch { _users.postValue(State.Error(it)) }
-                .collect { _users.postValue(State.Success(it!!)) }
+                .collect { _users.postValue(State.Success(it)) }
         }
     }
 

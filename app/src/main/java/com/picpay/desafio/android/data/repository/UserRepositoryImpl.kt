@@ -12,7 +12,7 @@ class UserRepositoryImpl(private val picPayService: PicPayService) : UserReposit
         try {
             val response = picPayService.getUsers()
             if (!response.isSuccessful) {
-//                levantar exceção
+                throw Exception()
             }
             emit(response.body()?: listOf())
         } catch (exception: Exception) {

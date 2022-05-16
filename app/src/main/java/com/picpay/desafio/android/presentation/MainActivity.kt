@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity() {
                     Toast
                         .makeText(this@MainActivity,"Loading", Toast.LENGTH_SHORT)
                         .show()
+                    Log.e("Main-Loading", state.toString())
                     progressBar.visibility = View.VISIBLE
                 }
                 is MainViewModel.State.Error -> {
@@ -55,14 +56,12 @@ class MainActivity : AppCompatActivity() {
                     Toast
                         .makeText(this@MainActivity, state.error.message, Toast.LENGTH_SHORT)
                         .show()
+                    Log.e("Main-Error", state.error.message.toString())
                 }
                 is MainViewModel.State.Success -> {
                     progressBar.visibility = View.GONE
                     adapter.submitList(state.list)
-                    Toast
-                        .makeText(this@MainActivity, state.list.toString(), Toast.LENGTH_SHORT)
-                        .show()
-                    Log.e("Main", state.list.toString())
+                    Log.e("Main-Success", state.list.toString())
                 }
 
             }

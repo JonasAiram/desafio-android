@@ -2,6 +2,7 @@ package com.picpay.desafio.android.data.di
 
 import android.util.Log
 import com.google.gson.GsonBuilder
+import com.picpay.desafio.android.data.database.manager.DatabaseHelper
 import com.picpay.desafio.android.data.network.PicPayService
 import com.picpay.desafio.android.data.repository.UserRepositoryImpl
 import com.picpay.desafio.android.domain.repository.UserRepository
@@ -17,7 +18,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object PicPayModule {
 
     fun load() {
-        loadKoinModules(networkModules() + repositoriesModule())
+        loadKoinModules(networkModules() + repositoriesModule() + daoModule())
     }
 
     private fun repositoriesModule(): Module {
@@ -55,4 +56,9 @@ object PicPayModule {
             .create(T::class.java)
     }
 
+    private fun daoModule(): Module {
+        return module {
+            single { DatabaseHelper.getInstance(get())?.userDao() }
+        }
+    }
 }

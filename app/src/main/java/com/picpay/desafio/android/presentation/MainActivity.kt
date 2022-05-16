@@ -1,19 +1,19 @@
 package com.picpay.desafio.android.presentation
 
 import android.os.Bundle
-import android.os.Parcelable
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.observe
 import com.picpay.desafio.android.databinding.ActivityMainBinding
 import com.picpay.desafio.android.domain.adapters.user.UserListAdapter
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
 
+
+    private var positionScroll: Int = 0
     private lateinit var progressBar: ProgressBar
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
     private val adapter by lazy { UserListAdapter() }
@@ -29,6 +29,16 @@ class MainActivity : AppCompatActivity() {
 
         initObservers()
         viewModel.listUsers()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        positionScroll = binding.nestedScrollView.verticalScrollbarPosition
+    }
+
+    override fun onResume() {
+        super.onResume()
+        binding.nestedScrollView.verticalScrollbarPosition = positionScroll
     }
 
     private fun initObservers() {

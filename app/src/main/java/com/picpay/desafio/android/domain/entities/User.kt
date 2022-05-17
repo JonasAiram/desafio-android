@@ -1,21 +1,13 @@
 package com.picpay.desafio.android.domain.entities
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import com.google.gson.annotations.SerializedName
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
-@Entity(tableName = "user")
+
+@Parcelize
 data class User(
-    @SerializedName("id")
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
-
-    @SerializedName("name")
+    val id: Int,
     val name: String,
-
-    @SerializedName("img")
     val img: String,
-
-    @SerializedName("username")
     val username: String
-)
+) : Parcelable

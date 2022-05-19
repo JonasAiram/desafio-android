@@ -1,5 +1,6 @@
 package com.picpay.desafio.android.presentation.di
 
+import com.picpay.desafio.android.presentation.DefaultDispatchers
 import com.picpay.desafio.android.presentation.MainViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.loadKoinModules
@@ -14,7 +15,7 @@ object PresentationModule {
 
     private fun viewModelModule(): Module {
         return module {
-            viewModel { MainViewModel(get()) }
+            viewModel { MainViewModel(get(), DefaultDispatchers()) }
         }
     }
 }

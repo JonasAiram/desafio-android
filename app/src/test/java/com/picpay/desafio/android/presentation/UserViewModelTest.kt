@@ -1,96 +1,96 @@
 package com.picpay.desafio.android.presentation
 
-
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.picpay.desafio.android.MainCoroutineRule
+import com.picpay.desafio.android.CoroutineTestRule
+import com.picpay.desafio.android.TestableObserver
 import com.picpay.desafio.android.domain.entities.User
 import com.picpay.desafio.android.domain.useCase.ListUsers
-import com.picpay.desafio.android.getOrAwaitTestValue
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.runBlockingTest
-import org.junit.Assert
+import kotlinx.coroutines.test.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-
+import kotlin.jvm.Throws
 
 @ExperimentalCoroutinesApi
 class MainViewModelTest {
 
-    @JvmField
-    @Rule
-    val rule = InstantTaskExecutorRule()
+    @get:Rule
+    val coroutineTestRule: CoroutineTestRule = CoroutineTestRule()
 
     @get:Rule
-    val instantTaskRule = InstantTaskExecutorRule()
-
-    // Make sure viewModelScope uses a test dispatcher
-    @get:Rule
-    val coroutinesDispatcherRule = MainCoroutineRule()
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @MockK
     private lateinit var listUsers: ListUsers
 
     private lateinit var viewModel: MainViewModel
-    private val testDispatcher = TestCoroutineDispatcher()
+
+    val exception = Exception()
 
     @Before
     fun setup() {
         MockKAnnotations.init(this)
-        viewModel = MainViewModel(listUsers)
+        viewModel = MainViewModel(listUsers, coroutineTestRule.testDispatcherProvider)
     }
 
     private val list: List<User> = listOf(
         User(
             id = 1,
-            name ="name_valid_1",
+            name = "name_valid_1",
             img = "imagem",
             username = "username"
         ),
         User(
             id = 2,
-            name ="name_valid_2",
+            name = "name_valid_2",
             img = "imagem",
             username = "username"
         )
     )
 
     @Test
-    suspend fun `Check flow of get User`()  = runBlockingTest  {
+    fun `Check the get user list flow`() = runTest {
 
-//        given - dados fornecidos para simulador o teste
         coEvery { listUsers.getUsers() } returns flow { emit(list) }
 
-//        when - quando o teste será simulado
+        val stateObserver = TestableObserver<MainViewModel.State>()
+
+        viewModel.users.apply {
+            observeForever(stateObserver)
+        }
+
         viewModel.listUsers()
-        viewModel.users.getOrAwaitTestValue()
-
-//        then - verificar
-        Assert.assertEquals(MainViewModel.State.Loading::class.java, viewModel.users.value?.javaClass)
-
-        viewModel.users.getOrAwaitTestValue()
-        Assert.assertEquals(MainViewModel.State.Success::class.java, viewModel.users.value?.javaClass)
-
+        stateObserver.assertAllEmitted(
+            listOf(
+                MainViewModel.State.Loading,
+                MainViewModel.State.Success(list)
+            )
+        )
     }
 
+    @Test
+    fun `Check user list flow with any exception`() = runTest {
 
+        coEvery { listUsers.getUsers() } returns flow { throw exception }
 
-//    @Test
-//    suspend fun `Check flow of get User`() = testDispatcher.runBlockingTest {
-//
-//        val flow = flow {
-//            emit(list)
-//        }
-//
-//        `when`(listUsers.getUsers()).thenReturn(flow)
-//
-//        Assert.assertEquals(true, true)
-//    }
+        val stateObserver = TestableObserver<MainViewModel.State>()
 
+        viewModel.users.apply {
+            observeForever(stateObserver)
+        }
+
+        viewModel.listUsers()
+        stateObserver.assertAllEmitted(
+            listOf(
+                MainViewModel.State.Loading,
+                MainViewModel.State.Error(exception)
+            )
+        )
+    }
 
 }

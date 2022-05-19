@@ -9,7 +9,6 @@ import com.picpay.desafio.android.domain.entities.User
 import com.picpay.desafio.android.domain.repository.UserRepository
 import kotlinx.coroutines.flow.*
 
-//class UserRepositoryImpl(private val picPayService: PicPayService) : UserRepository {
 
 class UserRepositoryImpl(
     private val picPayService: PicPayService,
@@ -34,7 +33,7 @@ class UserRepositoryImpl(
 
         try {
             val response = picPayService.getUsers()
-            Log.e("UserRepository", "getUsersNetwork")
+//            Log.e("UserRepository", "getUsersNetwork")
             if (!response.isSuccessful) {
                 throw Exception()
             }
@@ -46,7 +45,7 @@ class UserRepositoryImpl(
 
             return (response.body()?: listOf())
         } catch (exception: Exception) {
-            Log.e("UserRepository", exception.toString())
+//            Log.e("UserRepository", exception.toString())
             throw exception
         }
 
@@ -55,10 +54,10 @@ class UserRepositoryImpl(
     private suspend fun getUsersCacheExpired(cacheList : List<UserCache>): List<User> {
         if (cacheList[0].updateDate > System.currentTimeMillis() - EXPIRED_TIME){
             val debug = cacheList[0].updateDate - (System.currentTimeMillis() - EXPIRED_TIME)
-            Log.e("UserRepository", "return cache $debug milisegundos")
+//            Log.e("UserRepository", "return cache $debug milisegundos")
             return UserCacheMapper.map(cacheList)
         }
-        Log.e("UserRepository", "return network")
+//        Log.e("UserRepository", "return network")
         return getUsersNetwork()
     }
 }

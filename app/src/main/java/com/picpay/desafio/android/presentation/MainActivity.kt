@@ -12,7 +12,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
 
-
     private var positionScroll: Int = 0
     private lateinit var progressBar: ProgressBar
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
@@ -46,7 +45,7 @@ class MainActivity : AppCompatActivity() {
             when (state) {
                 MainViewModel.State.Loading -> {
                     Toast
-                        .makeText(this@MainActivity,"Loading", Toast.LENGTH_SHORT)
+                        .makeText(this@MainActivity, "Loading", Toast.LENGTH_SHORT)
                         .show()
                     Log.e("Main-Loading", state.toString())
                     progressBar.visibility = View.VISIBLE
@@ -63,9 +62,7 @@ class MainActivity : AppCompatActivity() {
                     adapter.submitList(state.list)
                     Log.e("Main-Success", state.list.toString())
                 }
-
             }
         }
     }
-
 }
